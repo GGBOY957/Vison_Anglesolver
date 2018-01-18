@@ -4,7 +4,7 @@
 
 using namespace cv;
 using namespace std;
-
+//获取图像坐标对应的世界坐标并计算PnP
 void RectPnPSolver::solvePnP4Points(const std::vector<cv::Point2f> & points2d, cv::Mat & rot, cv::Mat & trans){
 	if (width_target < 10e-5 || height_target < 10e-5){
 		rot = cv::Mat::eye(3, 3, CV_64FC1);
@@ -26,8 +26,8 @@ void RectPnPSolver::solvePnP4Points(const std::vector<cv::Point2f> & points2d, c
 	//cout << "cam_matrix  " << cam_matrix << endl;
     //cout << "distortion_coeff  " << distortion_coeff << endl;
 	//cv::solvePnP() 
-	cv::solvePnP(point3d, points2d, cam_matrix, distortion_coeff, r, trans);//transƽ�ƾ���
-	Rodrigues(r, rot);//rot==��ת����
+	cv::solvePnP(point3d, points2d, cam_matrix, distortion_coeff, r, trans);//transÆ½ÒÆ¾ØÕó
+	Rodrigues(r, rot);//rot==Ðý×ª¾ØÕó
 }
 
 
@@ -58,7 +58,7 @@ bool AngleSolver::getAngle(const cv::RotatedRect & rect, double & angle_x, doubl
 	//height_target = 100;
 	//setTargetSize(10, 10);// todo
 	//cout << "width_target  " << width_target << endl;
-	RectPnPSolver::solvePnP4Points(target2d, r, position_in_camera);//��������������������������������������������<
+	RectPnPSolver::solvePnP4Points(target2d, r, position_in_camera);//£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿<
 	//cout << "position_in_camera  " << position_in_camera << endl;
 	//cout << "position_in_camera  " << position_in_camera << endl;
 	//position_in_camera.at<double>(2, 0) = 1.4596 * position_in_camera.at<double>(2, 0);  // for camera-2 calibration (unfix center)
@@ -83,14 +83,14 @@ bool AngleSolver::getAngle(const cv::RotatedRect & rect, double & angle_x, doubl
 
 	return true;
 }
-
+//将相机坐标系转换为炮台坐标系
 void AngleSolver::tranformationCamera2PTZ(const cv::Mat & pos, cv::Mat & transed_pos){
 	transed_pos = rot_camera2ptz * pos - trans_camera2ptz;
 	//cout << "********************************" << endl;
 	//cout << rot_camera2ptz << endl;
 	//cout << trans_camera2ptz << endl;
 }
-
+//获取到solvePnP的输出矩阵后根据公式计算出角度值
 void AngleSolver::adjustPTZ2Barrel(const cv::Mat & pos_in_ptz, double & angle_x, double & angle_y, double bullet_speed, double current_ptz_angle){
 	const double *_xyz = (const double *)pos_in_ptz.data;
 	double down_t = 0.0;
@@ -132,7 +132,7 @@ void AngleSolver::adjustPTZ2Barrel(const cv::Mat & pos_in_ptz, double & angle_x,
 	angle_y = angle_y * 180 / 3.1415926;
 	cout << "angle_x=  " << abs(angle_x) << "angle_y=  " << abs(angle_y) << endl;
 }
-
+//将图像坐标系顺序与世界坐标系顺序一一对应起来
 void AngleSolver::getTarget2dPoinstion(const cv::RotatedRect & rect, vector<Point2f> & target2d, const cv::Point2f & offset){
 	//cout << "**************************" << endl;
 	//cout << "**************************" << endl;
@@ -165,7 +165,7 @@ void AngleSolver::getTarget2dPoinstion(const cv::RotatedRect & rect, vector<Poin
 	target2d.push_back(ld + offset);
 }
 
-
+//设置装甲块尺寸
 void AngleSolverFactory::setTargetSize(double width, double height, TargetType type){
 	if (type == TARGET_RUNE){
 		rune_width = width;
@@ -180,7 +180,7 @@ void AngleSolverFactory::setTargetSize(double width, double height, TargetType t
 		small_armor_height = height;
 	}
 }
-
+//设置工厂类结算器
 bool AngleSolverFactory::getAngle(const cv::RotatedRect & rect, TargetType type, double & angle_x, double & angle_y, double bullet_speed, double current_ptz_angle, const cv::Point2f & offset){
 	if (slover == NULL){
 		std::cerr << "slover not set\n";
@@ -202,6 +202,6 @@ bool AngleSolverFactory::getAngle(const cv::RotatedRect & rect, TargetType type,
 	}
 	cv::RotatedRect rect_rectifid = rect;
 	//AngleSolverFactory::adjustRect2FixedRatio(rect_rectifid, width / height);
-	//slover->setTargetSize(width, height);װ�׽ӿ�
+	//slover->setTargetSize(width, height);×°¼×½Ó¿Ú
 	return slover->getAngle(rect_rectifid, angle_x, angle_y, bullet_speed, current_ptz_angle, offset);
 }
